@@ -1,23 +1,17 @@
 {
-  "name": "Habit Flow - Daily Habit Tracker",
-  "short_name": "Habit Flow",
-  "description": "Track your daily habits and build lasting routines",
-  "start_url": "/",
+  "name": "Habit Flow",
+  "short_name": "Habits",
+  "start_url": "/Habit-Flow/",
+  "scope": "/Habit-Flow/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "orientation": "portrait-primary",
+  "theme_color": "#f59e0b",
+  "description": "Track your daily habits and build better routines",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/Habit-Flow/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

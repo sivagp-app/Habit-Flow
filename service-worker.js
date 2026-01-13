@@ -2,11 +2,11 @@
 
 const CACHE_NAME = 'habit-flow-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
+  '/Habit-Flow/',
+  '/Habit-Flow/index.html',
+  '/Habit-Flow/styles.css',
+  '/Habit-Flow/app.js',
+  '/Habit-Flow/manifest.json',
   'https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap'
 ];
 
