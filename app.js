@@ -1,4 +1,152 @@
-// Habit Tracker App v4.0 - Complete with Quantity/Duration Tracking and Monthly View
+// Habit Tracker App v5.2.1 - PHASE 1 FIXES: Error Handling, Validation, Security
+// Critical Fixes: XSS Protection, Input Validation, Error Recovery, CSP Compliance
+
+// ============================================================================
+// UTILITY FUNCTIONS - PHASE 1 SECURITY & VALIDATION
+// ============================================================================
+
+// Sanitize HTML to prevent XSS attacks
+function sanitizeHTML(str) {
+    if (!str) return '';
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// Sanitize and validate habit name
+function sanitizeHabitName(name) {
+    if (!name) return '';
+    return name.trim()
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/[^\w\s\-.,!?']/g, '') // Remove special chars except safe punctuation
+        .substring(0, 100); // Max 100 chars
+}
+
+// Sanitize and validate notes
+function sanitizeNotes(notes) {
+    if (!notes) return '';
+    return notes.trim()
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .substring(0, 200); // Max 200 chars
+}
+
+// Show notification to user
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#16a34a' : '#3b82f6'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        font-family: var(--font-body, sans-serif);
+        font-size: 0.9rem;
+        font-weight: 500;
+        max-width: 350px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Data Validator
+const Validator = {
+    habit(habit) {
+        const errors = [];
+        
+        // Name validation
+        if (!habit.name || habit.name.trim().length === 0) {
+            errors.push('Habit name is required');
+        } else if (habit.name.length > 100) {
+            errors.push('Habit name must be 100 characters or less');
+        }
+        
+        // Icon validation
+        if (!habit.icon) {
+            errors.push('Please select an icon');
+        }
+        
+        // Tracking type validation
+        const validTypes = ['simple', 'quantity', 'duration'];
+        if (!validTypes.includes(habit.trackingType)) {
+            errors.push('Invalid tracking type');
+        }
+        
+        // Quantity tracking validation
+        if (habit.trackingType === 'quantity') {
+            if (!habit.unit) {
+                errors.push('Unit is required for quantity tracking');
+            }
+            if (!habit.dailyGoal || habit.dailyGoal <= 0) {
+                errors.push('Daily goal must be greater than 0');
+            }
+            if (habit.dailyGoal > 10000) {
+                errors.push('Daily goal too large (max 10,000)');
+            }
+        }
+        
+        // Duration validation
+        if (habit.trackingType === 'duration') {
+            if (!habit.dailyGoal || habit.dailyGoal <= 0) {
+                errors.push('Duration goal must be greater than 0');
+            }
+            if (habit.dailyGoal > 1440) { // 24 hours in minutes
+                errors.push('Duration goal too large (max 24 hours)');
+            }
+        }
+        
+        // Color validation
+        if (habit.color && !/^#[0-9A-F]{6}$/i.test(habit.color)) {
+            errors.push('Invalid color format');
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    },
+    
+    trackingValue(value, habit) {
+        const errors = [];
+        
+        if (typeof value !== 'number') {
+            errors.push('Value must be a number');
+            return { valid: false, errors };
+        }
+        
+        if (value < 0) {
+            errors.push('Value cannot be negative');
+        }
+        
+        if (habit.trackingType === 'quantity' && value > 10000) {
+            errors.push('Value too large (max 10,000)');
+        }
+        
+        if (habit.trackingType === 'duration' && value > 1440) {
+            errors.push('Duration cannot exceed 24 hours');
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    }
+};
+
+// ============================================================================
+// DATA STRUCTURE
+// ============================================================================
 
 // Data Structure
 let habits = [];
@@ -23,65 +171,98 @@ document.addEventListener('DOMContentLoaded', () => {
     checkInstallPrompt();
 });
 
-// Load data from localStorage
+// Load data from localStorage with ERROR HANDLING
 function loadData() {
-    const savedHabits = localStorage.getItem('habits');
-    const savedCompletions = localStorage.getItem('habitCompletions');
-    
-    if (savedHabits) {
-        habits = JSON.parse(savedHabits);
-        
-        // Migrate old habits to new format
-        habits = habits.map(habit => {
-            if (!habit.trackingType) {
-                return {
-                    ...habit,
-                    trackingType: 'simple',
-                    unit: null,
-                    dailyGoal: null,
-                    color: habit.categoryColor || '#3b82f6'
-                };
-            }
-            return habit;
-        });
-    }
-    
-    if (savedCompletions) {
-        habitCompletions = JSON.parse(savedCompletions);
-        
-        // Migrate old completions to new format
-        Object.keys(habitCompletions).forEach(habitId => {
-            Object.keys(habitCompletions[habitId]).forEach(date => {
-                const completion = habitCompletions[habitId][date];
-                if (typeof completion === 'boolean') {
-                    habitCompletions[habitId][date] = {
-                        completed: completion,
-                        value: completion ? 1 : 0,
-                        entries: []
+    // Load habits with error handling
+    try {
+        const savedHabits = localStorage.getItem('habits');
+        if (savedHabits) {
+            habits = JSON.parse(savedHabits);
+            
+            // Migrate old habits to new format
+            habits = habits.map(habit => {
+                if (!habit.trackingType) {
+                    return {
+                        ...habit,
+                        trackingType: 'simple',
+                        unit: null,
+                        dailyGoal: null,
+                        color: habit.categoryColor || '#3b82f6'
                     };
                 }
+                return habit;
             });
-        });
+        } else {
+            habits = [];
+        }
+    } catch (error) {
+        console.error('Error loading habits:', error);
+        habits = [];
+        showNotification('Could not load habits. Starting fresh.', 'error');
     }
     
-    // Load settings
-    adhdMode = localStorage.getItem('adhd_mode') === 'true';
-    focusMode = localStorage.getItem('focus_mode') === 'true';
-    notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true';
-    
-    if (adhdMode) {
-        document.body.classList.add('adhd-mode');
+    // Load completions with error handling
+    try {
+        const savedCompletions = localStorage.getItem('habitCompletions');
+        if (savedCompletions) {
+            habitCompletions = JSON.parse(savedCompletions);
+            
+            // Migrate old completions to new format
+            Object.keys(habitCompletions).forEach(habitId => {
+                Object.keys(habitCompletions[habitId]).forEach(date => {
+                    const completion = habitCompletions[habitId][date];
+                    if (typeof completion === 'boolean') {
+                        habitCompletions[habitId][date] = {
+                            completed: completion,
+                            value: completion ? 1 : 0,
+                            entries: []
+                        };
+                    }
+                });
+            });
+        } else {
+            habitCompletions = {};
+        }
+    } catch (error) {
+        console.error('Error loading completions:', error);
+        habitCompletions = {};
+        showNotification('Could not load history. Starting fresh.', 'error');
     }
     
-    if (focusMode) {
-        document.getElementById('focusModeBanner').style.display = 'flex';
+    // Load settings with error handling
+    try {
+        adhdMode = localStorage.getItem('adhd_mode') === 'true';
+        focusMode = localStorage.getItem('focus_mode') === 'true';
+        notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true';
+        
+        if (adhdMode) {
+            document.body.classList.add('adhd-mode');
+        }
+        
+        if (focusMode) {
+            const banner = document.getElementById('focusModeBanner');
+            if (banner) banner.style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('Error loading settings:', error);
+        // Use defaults - already set above
     }
 }
 
-// Save data to localStorage
+// Save data to localStorage with ERROR HANDLING
 function saveData() {
-    localStorage.setItem('habits', JSON.stringify(habits));
-    localStorage.setItem('habitCompletions', JSON.stringify(habitCompletions));
+    try {
+        localStorage.setItem('habits', JSON.stringify(habits));
+        localStorage.setItem('habitCompletions', JSON.stringify(habitCompletions));
+    } catch (error) {
+        console.error('Error saving data:', error);
+        
+        if (error.name === 'QuotaExceededError') {
+            showNotification('Storage full! Please export your data and clear some habits.', 'error');
+        } else {
+            showNotification('Could not save data. Please try again.', 'error');
+        }
+    }
 }
 
 // Initialize UI Elements
@@ -468,16 +649,17 @@ function resetForm() {
     document.getElementById('selectedColor').value = colorButtons[0].dataset.color;
 }
 
-// Save habit
+// Save habit with SANITIZATION and VALIDATION
 function saveHabit() {
-    const habitName = document.getElementById('habitName').value.trim();
+    // Get and SANITIZE inputs
+    const habitName = sanitizeHabitName(document.getElementById('habitName').value);
     const selectedIcon = document.getElementById('selectedIcon').value;
     const selectedCategory = document.getElementById('selectedCategory').value;
     const selectedCategoryColor = document.getElementById('selectedCategoryColor').value;
     const reminderTime = document.getElementById('reminderTime').value;
     const trackingType = document.getElementById('selectedTrackingType').value;
     const habitColor = document.getElementById('selectedColor').value;
-    const habitNotes = document.getElementById('habitNotes').value.trim();
+    const habitNotes = sanitizeNotes(document.getElementById('habitNotes').value);
     const editingHabitId = document.getElementById('editingHabitId').value;
     
     let unit = null;
@@ -486,52 +668,42 @@ function saveHabit() {
     if (trackingType === 'quantity') {
         unit = document.getElementById('quantityUnit').value;
         dailyGoal = parseInt(document.getElementById('quantityGoal').value) || null;
-        if (!dailyGoal) {
-            alert('Please enter a daily goal for quantity tracking');
-            return;
-        }
     } else if (trackingType === 'duration') {
         unit = 'minutes';
         dailyGoal = parseInt(document.getElementById('durationGoal').value) || 30;
     }
     
-    if (!habitName) {
-        alert('Please enter a habit name');
+    // Create habit data object
+    const habitData = {
+        name: habitName,
+        icon: selectedIcon,
+        category: selectedCategory,
+        categoryColor: selectedCategoryColor,
+        trackingType: trackingType,
+        unit: unit,
+        dailyGoal: dailyGoal,
+        color: habitColor,
+        notes: habitNotes,
+        reminderTime: reminderTime
+    };
+    
+    // VALIDATE before saving
+    const validation = Validator.habit(habitData);
+    if (!validation.valid) {
+        showNotification(validation.errors.join('. '), 'error');
         return;
     }
     
     if (editingHabitId) {
         const habit = habits.find(h => h.id === editingHabitId);
         if (habit) {
-            habit.name = habitName;
-            habit.icon = selectedIcon;
-            habit.category = selectedCategory;
-            habit.categoryColor = selectedCategoryColor;
-            habit.reminderTime = reminderTime;
-            habit.trackingType = trackingType;
-            habit.unit = unit;
-            habit.dailyGoal = dailyGoal;
-            habit.color = habitColor;
-            habit.notes = habitNotes;
+            Object.assign(habit, habitData);
         }
     } else {
-        const newHabit = {
-            id: Date.now().toString(),
-            name: habitName,
-            icon: selectedIcon,
-            category: selectedCategory,
-            categoryColor: selectedCategoryColor,
-            reminderTime: reminderTime,
-            trackingType: trackingType,
-            unit: unit,
-            dailyGoal: dailyGoal,
-            color: habitColor,
-            notes: habitNotes,
-            createdAt: new Date().toISOString()
-        };
-        
-        habits.push(newHabit);
-        habitCompletions[newHabit.id] = {};
+        habitData.id = Date.now().toString();
+        habitData.createdAt = new Date().toISOString();
+        habits.push(habitData);
+        habitCompletions[habitData.id] = {};
     }
     
     saveData();
@@ -542,6 +714,8 @@ function saveHabit() {
     
     document.getElementById('addHabitForm').style.display = 'none';
     resetForm();
+    
+    showNotification(editingHabitId ? 'Habit updated!' : 'Habit created!', 'success');
 }
 
 // Edit habit
@@ -1391,13 +1565,82 @@ function checkInstallPrompt() {
     });
 }
 
-// Service Worker Registration
+// Service Worker Registration with UPDATE DETECTION
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(reg => console.log('Service Worker registered'))
-            .catch(err => console.log('Service Worker registration failed'));
+        navigator.serviceWorker.register('/Habit-Flow/service-worker.js')
+            .then(registration => {
+                console.log('✅ Service Worker registered successfully');
+                
+                // Check for updates every hour
+                setInterval(() => {
+                    registration.update();
+                }, 60 * 60 * 1000);
+                
+                // Listen for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // New version available!
+                            showUpdatePrompt();
+                        }
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('❌ Service Worker registration failed:', error);
+            });
     });
+}
+
+// Show update prompt
+function showUpdatePrompt() {
+    const updateBanner = document.createElement('div');
+    updateBanner.id = 'updateBanner';
+    updateBanner.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--color-primary, #f59e0b);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    updateBanner.innerHTML = `
+        <span>🎉 New version available!</span>
+        <button onclick="location.reload()" style="
+            background: white;
+            color: var(--color-primary, #f59e0b);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-body, sans-serif);
+        ">Update Now</button>
+        <button onclick="this.parentElement.remove()" style="
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font-body, sans-serif);
+        ">Later</button>
+    `;
+    
+    document.body.appendChild(updateBanner);
 }
 
 // Export to CSV
