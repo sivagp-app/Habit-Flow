@@ -281,9 +281,11 @@ function setupModalHandlers() {
 // Tracking Modal Handlers
 function setupTrackingHandlers() {
     const btnCloseTracking = document.getElementById('btnCloseTracking');
-    // FIXED: Changed btnAddEntry → btnAddCustom
+    const btnCustomAmount = document.getElementById('btnCustomAmount');
     const btnAddCustom = document.getElementById('btnAddCustom');
-    const trackingValue = document.getElementById('trackingValue');
+    const customAmountInput = document.getElementById('customAmountInput');
+    const btnMarkComplete = document.getElementById('btnMarkComplete');
+    const btnCancelTracking = document.getElementById('btnCancelTracking');
     
     if (btnCloseTracking) {
         btnCloseTracking.addEventListener('click', () => {
@@ -291,53 +293,115 @@ function setupTrackingHandlers() {
         });
     }
     
-    if (btnAddCustom && trackingValue) {
+    if (btnCancelTracking) {
+        btnCancelTracking.addEventListener('click', () => {
+            document.getElementById('trackingModal').style.display = 'none';
+        });
+    }
+    
+    // Custom amount button - show/hide input
+    if (btnCustomAmount) {
+        btnCustomAmount.addEventListener('click', () => {
+            const customSection = document.getElementById('customAmountSection');
+            if (customSection) {
+                customSection.style.display = customSection.style.display === 'none' ? 'block' : 'none';
+                if (customSection.style.display === 'block' && customAmountInput) {
+                    customAmountInput.focus();
+                }
+            }
+        });
+    }
+    
+    // Add custom amount
+    if (btnAddCustom && customAmountInput) {
         btnAddCustom.addEventListener('click', () => {
             const habitId = document.getElementById('trackingHabitId').value;
-            const value = parseFloat(trackingValue.value);
+            const value = parseFloat(customAmountInput.value);
             
             if (isNaN(value) || value <= 0) {
                 notificationService.error('Please enter a valid amount');
                 return;
             }
             
+            addTrackingValue(habitId, value);
+            customAmountInput.value = '';
+            document.getElementById('customAmountSection').style.display = 'none';
+        });
+    }
+    
+    // Mark complete button
+    if (btnMarkComplete) {
+        btnMarkComplete.addEventListener('click', () => {
+            const habitId = document.getElementById('trackingHabitId').value;
             const habits = appState.getHabits();
             const completions = appState.getCompletions();
-            const habit = habits.find(h => h.id === habitId);
+            const today = getTodayString();
             
-            if (!habit) return;
-            
-            // Validate tracking value
-            const validation = Validator.trackingValue(value, habit);
-            if (!validation.valid) {
-                notificationService.error(validation.errors.join('. '));
-                return;
+            if (completions[habitId] && completions[habitId][today]) {
+                completions[habitId][today].completed = true;
             }
             
-            const result = habitManager.addTrackingEntry(
-                habitId, 
-                value, 
-                habits, 
-                completions, 
-                appState.isADHDMode()
-            );
+            appState.setCompletions(completions);
+            saveData();
+            document.getElementById('trackingModal').style.display = 'none';
+            render();
             
-            if (result.success) {
-                appState.setCompletions(completions);
-                saveData();
-                
-                if (result.shouldCelebrate) {
-                    showCelebration(
-                        `${habit.icon} Goal Reached!`,
-                        habitManager.getCelebrationMessage()
-                    );
-                }
-                
-                trackingValue.value = '';
-                uiRenderer.updateTrackingModal(habitId, habits, completions);
-                render();
+            if (appState.isADHDMode()) {
+                showCelebration('🎉 Goal Complete!', 'Amazing work! Keep it up! 💪');
             }
         });
+    }
+    
+    // Event delegation for dynamically created quick-add buttons
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-quick-add:not(#btnCustomAmount)')) {
+            const button = e.target.closest('.btn-quick-add');
+            const amount = parseFloat(button.dataset.amount);
+            const habitId = document.getElementById('trackingHabitId').value;
+            
+            if (amount && habitId) {
+                addTrackingValue(habitId, amount);
+            }
+        }
+    });
+}
+
+// Helper function to add tracking value
+function addTrackingValue(habitId, value) {
+    const habits = appState.getHabits();
+    const completions = appState.getCompletions();
+    const habit = habits.find(h => h.id === habitId);
+    
+    if (!habit) return;
+    
+    // Validate tracking value
+    const validation = Validator.trackingValue(value, habit);
+    if (!validation.valid) {
+        notificationService.error(validation.errors.join('. '));
+        return;
+    }
+    
+    const result = habitManager.addTrackingEntry(
+        habitId, 
+        value, 
+        habits, 
+        completions, 
+        appState.isADHDMode()
+    );
+    
+    if (result.success) {
+        appState.setCompletions(completions);
+        saveData();
+        
+        if (result.goalReached && appState.isADHDMode()) {
+            showCelebration(
+                `${habit.icon} Goal Reached!`,
+                habitManager.getCelebrationMessage()
+            );
+        }
+        
+        uiRenderer.updateTrackingModal(habitId, habits, completions);
+        render();
     }
 }
 
