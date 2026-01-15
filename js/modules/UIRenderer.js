@@ -2,6 +2,7 @@
  * UI Renderer Module
  * Handles all UI rendering and display logic
  * Phase 2A - Modular Architecture
+ * FIXED: Quick-add buttons, tracking modal, monthly view
  */
 
 import { getTodayString, getCurrentWeekDates, getDaysInMonth, getFirstDayOfMonth, getMonthName } from '../utils/dateHelpers.js';
@@ -205,17 +206,14 @@ export class UIRenderer {
             let habitDots = '';
             habits.forEach(habit => {
                 const completion = completions[habit.id]?.[dateString];
-                if (completion && completion.completed) {
-                    habitDots += `<div class="habit-dot completed" style="background: ${habit.color || '#3b82f6'}"></div>`;
-                } else {
-                    habitDots += `<div class="habit-dot"></div>`;
-                }
+                const isCompleted = completion && completion.completed;
+                habitDots += `<div class="habit-dot ${isCompleted ? 'completed' : ''}"></div>`;
             });
             
             return `
-                <div class="calendar-day ${isToday ? 'today' : ''}">
+                <div class="day-column ${isToday ? 'today' : ''}">
                     <div class="day-name">${dayName}</div>
-                    <div class="day-number">${dayDate}</div>
+                    <div class="day-date">${dayDate}</div>
                     <div class="day-habits">${habitDots}</div>
                 </div>
             `;
@@ -224,62 +222,198 @@ export class UIRenderer {
     
     /**
      * Render monthly view
+     * FIXED: Using correct element ID 'monthlyView' instead of 'monthlyCalendarGrid'
      */
     renderMonthlyView(habits, completions) {
-        const container = document.getElementById('monthlyCalendarGrid');
+        const container = document.getElementById('monthlyView');
         if (!container) return;
         
         const year = this.currentMonthView.getFullYear();
         const month = this.currentMonthView.getMonth();
         
         // Update month display
-        const monthYearEl = document.getElementById('currentMonthYear');
-        if (monthYearEl) {
-            monthYearEl.textContent = `${getMonthName(month)} ${year}`;
+        const currentMonthEl = document.getElementById('currentMonth');
+        if (currentMonthEl) {
+            currentMonthEl.textContent = `${getMonthName(month)} ${year}`;
         }
         
+        if (habits.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--color-text-muted); padding: 2rem;">Create habits to see your monthly progress here!</p>';
+            return;
+        }
+        
+        container.innerHTML = habits.map(habit => {
+            const stats = this.calculateMonthlyStats(habit.id, year, month, completions);
+            const heatmapHTML = this.renderHeatmap(habit, year, month, completions);
+            
+            let totalDisplay = '';
+            if (habit.trackingType === 'quantity') {
+                totalDisplay = `${stats.totalValue} ${habit.unit}`;
+            } else if (habit.trackingType === 'duration') {
+                const hours = Math.floor(stats.totalValue / 60);
+                const mins = stats.totalValue % 60;
+                totalDisplay = hours > 0 ? `${hours}h ${mins}m` : `${mins} mins`;
+            } else {
+                totalDisplay = `${stats.completedDays} days`;
+            }
+            
+            return `
+                <div class="habit-monthly-card">
+                    <div class="habit-monthly-header">
+                        <div class="habit-monthly-info">
+                            <span class="habit-monthly-icon">${habit.icon}</span>
+                            <span class="habit-monthly-name">${habit.name}</span>
+                        </div>
+                        <div class="habit-monthly-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">${totalDisplay}</span>
+                                <span class="stat-label">Total</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">${stats.completionRate}%</span>
+                                <span class="stat-label">Rate</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">${stats.currentStreak}</span>
+                                <span class="stat-label">Streak</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${heatmapHTML}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    /**
+     * Calculate monthly stats for a habit
+     */
+    calculateMonthlyStats(habitId, year, month, completions) {
         const daysInMonth = getDaysInMonth(year, month);
-        const firstDay = getFirstDayOfMonth(year, month);
         
-        let html = '';
+        let completedDays = 0;
+        let totalValue = 0;
         
-        // Empty cells for days before month starts
-        for (let i = 0; i < firstDay; i++) {
-            html += '<div class="month-day empty"></div>';
-        }
-        
-        // Days of the month
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
             const dateString = date.toISOString().split('T')[0];
-            const isToday = dateString === getTodayString();
+            const completion = completions[habitId]?.[dateString];
             
-            let completedCount = 0;
-            habits.forEach(habit => {
-                const completion = completions[habit.id]?.[dateString];
-                if (completion && completion.completed) {
-                    completedCount++;
+            if (completion) {
+                if (completion.completed) completedDays++;
+                totalValue += (completion.value || 0);
+            }
+        }
+        
+        const completionRate = Math.round((completedDays / daysInMonth) * 100);
+        const currentStreak = this.statsCalculator.calculateStreak(habitId, completions);
+        
+        return {
+            completedDays,
+            totalValue,
+            completionRate,
+            currentStreak
+        };
+    }
+    
+    /**
+     * Render heatmap for monthly view
+     */
+    renderHeatmap(habit, year, month, completions) {
+        const daysInMonth = getDaysInMonth(year, month);
+        const firstDay = getFirstDayOfMonth(year, month);
+        
+        const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        
+        let html = '<div class="heatmap-container"><div class="heatmap-grid">';
+        
+        // Day labels
+        dayLabels.forEach(label => {
+            html += `<div class="heatmap-day-label">${label}</div>`;
+        });
+        
+        // Empty cells for days before month starts
+        for (let i = 0; i < firstDay; i++) {
+            html += '<div class="heatmap-box empty"></div>';
+        }
+        
+        // Days of the month
+        const today = new Date();
+        const todayString = getTodayString();
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const dateString = date.toISOString().split('T')[0];
+            const completion = completions[habit.id]?.[dateString];
+            const isToday = dateString === todayString;
+            const isFuture = date > today;
+            
+            let intensity = 0;
+            let tooltipText = '';
+            
+            if (isFuture) {
+                html += `<div class="heatmap-box future"><span>${day}</span></div>`;
+                continue;
+            }
+            
+            if (completion) {
+                if (habit.trackingType === 'simple') {
+                    intensity = completion.completed ? 100 : 0;
+                    tooltipText = completion.completed ? 'Completed' : 'Not done';
+                } else {
+                    const percentage = (completion.value / habit.dailyGoal) * 100;
+                    intensity = Math.min(100, percentage);
+                    const unit = habit.trackingType === 'duration' ? 'mins' : habit.unit;
+                    tooltipText = `${completion.value}/${habit.dailyGoal} ${unit}`;
                 }
-            });
+            } else {
+                intensity = 0;
+                tooltipText = 'No data';
+            }
             
-            const totalHabits = habits.length;
-            const percentage = totalHabits > 0 ? (completedCount / totalHabits) * 100 : 0;
-            
-            let heatClass = '';
-            if (percentage === 100) heatClass = 'heat-100';
-            else if (percentage >= 75) heatClass = 'heat-75';
-            else if (percentage >= 50) heatClass = 'heat-50';
-            else if (percentage >= 25) heatClass = 'heat-25';
-            else if (percentage > 0) heatClass = 'heat-1';
+            const color = habit.color || '#3b82f6';
+            const bgColor = intensity === 0 ? 'var(--color-surface-light)' : this.adjustColorOpacity(color, intensity);
             
             html += `
-                <div class="month-day ${isToday ? 'today' : ''} ${heatClass}" title="${completedCount}/${totalHabits} habits completed">
-                    <div class="day-number">${day}</div>
+                <div class="heatmap-box ${isToday ? 'today' : ''}" style="background: ${bgColor};">
+                    <span>${day}</span>
+                    <div class="heatmap-tooltip">${tooltipText}</div>
                 </div>
             `;
         }
         
-        container.innerHTML = html;
+        html += '</div></div>';
+        
+        // Legend
+        const color = habit.color || '#3b82f6';
+        html += `
+            <div class="heatmap-legend">
+                <span class="legend-label">Less</span>
+                <div class="legend-boxes">
+                    <div class="legend-box" style="background: var(--color-surface-light);"></div>
+                    <div class="legend-box" style="background: ${this.adjustColorOpacity(color, 25)};"></div>
+                    <div class="legend-box" style="background: ${this.adjustColorOpacity(color, 50)};"></div>
+                    <div class="legend-box" style="background: ${this.adjustColorOpacity(color, 75)};"></div>
+                    <div class="legend-box" style="background: ${this.adjustColorOpacity(color, 100)};"></div>
+                </div>
+                <span class="legend-label">More</span>
+            </div>
+        `;
+        
+        return html;
+    }
+    
+    /**
+     * Adjust color opacity for heatmap
+     */
+    adjustColorOpacity(hexColor, percentage) {
+        const r = parseInt(hexColor.slice(1, 3), 16);
+        const g = parseInt(hexColor.slice(3, 5), 16);
+        const b = parseInt(hexColor.slice(5, 7), 16);
+        
+        const opacity = 0.2 + (percentage / 100) * 0.8;
+        
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
     
     /**
@@ -294,7 +428,105 @@ export class UIRenderer {
     }
     
     /**
+     * Setup quick add buttons for tracking modal
+     * FIXED: Added this method to generate context-aware buttons
+     */
+    setupQuickAddButtons(habit) {
+        const quickAddContainer = document.querySelector('.quick-add-buttons');
+        if (!quickAddContainer) return;
+        
+        let buttons = [];
+        
+        if (habit.trackingType === 'duration') {
+            // Duration: 15, 30, 45 minute increments
+            buttons = [
+                { amount: 15, label: '+15 min' },
+                { amount: 30, label: '+30 min' },
+                { amount: 45, label: '+45 min' }
+            ];
+        } else {
+            // Quantity: context-aware based on unit
+            switch(habit.unit) {
+                case 'cups':
+                case 'glasses':
+                    buttons = [
+                        { amount: 1, label: '+1' },
+                        { amount: 2, label: '+2' },
+                        { amount: 3, label: '+3' }
+                    ];
+                    break;
+                case 'oz':
+                    buttons = [
+                        { amount: 8, label: '+8 oz' },
+                        { amount: 16, label: '+16 oz' },
+                        { amount: 24, label: '+24 oz' }
+                    ];
+                    break;
+                case 'ml':
+                    buttons = [
+                        { amount: 250, label: '+250 ml' },
+                        { amount: 500, label: '+500 ml' },
+                        { amount: 750, label: '+750 ml' }
+                    ];
+                    break;
+                case 'liters':
+                    buttons = [
+                        { amount: 0.25, label: '+0.25 L' },
+                        { amount: 0.5, label: '+0.5 L' },
+                        { amount: 1, label: '+1 L' }
+                    ];
+                    break;
+                case 'pages':
+                    buttons = [
+                        { amount: 10, label: '+10' },
+                        { amount: 25, label: '+25' },
+                        { amount: 50, label: '+50' }
+                    ];
+                    break;
+                case 'reps':
+                    buttons = [
+                        { amount: 10, label: '+10' },
+                        { amount: 25, label: '+25' },
+                        { amount: 50, label: '+50' }
+                    ];
+                    break;
+                case 'times':
+                    buttons = [
+                        { amount: 1, label: '+1' },
+                        { amount: 2, label: '+2' },
+                        { amount: 3, label: '+3' }
+                    ];
+                    break;
+                default:
+                    // Generic fallback
+                    buttons = [
+                        { amount: 1, label: '+1' },
+                        { amount: 2, label: '+2' },
+                        { amount: 5, label: '+5' }
+                    ];
+            }
+        }
+        
+        // Remove existing quick add buttons (except Custom button)
+        const existingButtons = quickAddContainer.querySelectorAll('.btn-quick-add:not(#btnCustomAmount)');
+        existingButtons.forEach(btn => btn.remove());
+        
+        // Add new context-aware buttons
+        const customButton = document.getElementById('btnCustomAmount');
+        buttons.forEach(btn => {
+            const button = document.createElement('button');
+            button.className = 'btn-quick-add';
+            button.textContent = btn.label;
+            button.dataset.amount = btn.amount;
+            button.dataset.habitId = habit.id;
+            button.type = 'button';
+            quickAddContainer.insertBefore(button, customButton);
+        });
+    }
+    
+    /**
      * Update tracking modal
+     * FIXED: Added complete implementation with quick-add buttons
      */
     updateTrackingModal(habitId, habits, completions) {
         const habit = habits.find(h => h.id === habitId);
@@ -303,21 +535,41 @@ export class UIRenderer {
         const today = getTodayString();
         const completion = completions[habitId]?.[today] || { completed: false, value: 0, entries: [] };
         
+        const currentValue = completion.value || 0;
+        const percentage = Math.min(100, Math.round((currentValue / habit.dailyGoal) * 100));
+        
+        // Format values (handle decimals nicely)
+        const formattedValue = Number.isInteger(currentValue) ? currentValue : currentValue.toFixed(2);
+        
         const currentValueEl = document.getElementById('trackingCurrentValue');
-        const entriesListEl = document.getElementById('trackingEntriesList');
+        const progressBarEl = document.getElementById('trackingProgressBar');
+        const percentageEl = document.getElementById('trackingPercentage');
         
-        if (currentValueEl) {
-            currentValueEl.textContent = completion.value || 0;
-        }
+        if (currentValueEl) currentValueEl.textContent = formattedValue;
+        if (progressBarEl) progressBarEl.style.width = percentage + '%';
+        if (percentageEl) percentageEl.textContent = percentage + '%';
         
-        if (entriesListEl && completion.entries) {
-            entriesListEl.innerHTML = completion.entries.map((entry, index) => `
-                <div class="tracking-entry">
-                    <span>+${entry.amount} ${habit.trackingType === 'duration' ? 'min' : habit.unit}</span>
-                    <span class="entry-time">${new Date(entry.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                    <button class="entry-delete btn-delete-entry" data-habit-id="${habitId}" data-entry-index="${index}" title="Delete entry">×</button>
-                </div>
-            `).join('');
+        // Setup quick add buttons
+        this.setupQuickAddButtons(habit);
+        
+        // Update entries list
+        const entriesListEl = document.getElementById('trackingEntries');
+        if (entriesListEl) {
+            if (completion.entries && completion.entries.length > 0) {
+                entriesListEl.innerHTML = completion.entries.map((entry, index) => {
+                    const formattedAmount = Number.isInteger(entry.amount) ? entry.amount : entry.amount.toFixed(2);
+                    const time = new Date(entry.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                    return `
+                        <div class="entry-item">
+                            <span class="entry-amount">+${formattedAmount} ${habit.trackingType === 'duration' ? 'mins' : habit.unit}</span>
+                            <span class="entry-time">${time}</span>
+                            <button class="entry-delete btn-delete-entry" data-habit-id="${habitId}" data-entry-index="${index}" title="Delete entry">×</button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                entriesListEl.innerHTML = '<p style="color: var(--color-text-muted); font-size: 0.85rem;">No entries yet today</p>';
+            }
         }
     }
 }
