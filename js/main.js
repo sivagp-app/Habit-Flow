@@ -1,6 +1,7 @@
 /**
  * Main Application Entry Point
  * Phase 2A + 2B - Modular Architecture with State Management
+ * FIXED: All button IDs now match index.html
  * 
  * This file orchestrates all modules and initializes the application
  */
@@ -117,24 +118,27 @@ function setupEventHandlers() {
 
 // Habit Form Handlers
 function setupHabitFormHandlers() {
-    const btnNewHabit = document.getElementById('btnNewHabit');
-    const btnSaveHabit = document.getElementById('btnSaveHabit');
-    const btnCancelHabit = document.getElementById('btnCancelHabit');
+    // FIXED: Changed btnNewHabit → btnAddHabit
+    const btnAddHabit = document.getElementById('btnAddHabit');
+    // FIXED: Changed btnSaveHabit → btnSave
+    const btnSave = document.getElementById('btnSave');
+    // FIXED: Changed btnCancelHabit → btnCancel
+    const btnCancel = document.getElementById('btnCancel');
     
-    if (btnNewHabit) {
-        btnNewHabit.addEventListener('click', () => {
+    if (btnAddHabit) {
+        btnAddHabit.addEventListener('click', () => {
             document.getElementById('addHabitForm').style.display = 'block';
             document.getElementById('habitName').focus();
             resetForm();
         });
     }
     
-    if (btnSaveHabit) {
-        btnSaveHabit.addEventListener('click', saveHabit);
+    if (btnSave) {
+        btnSave.addEventListener('click', saveHabit);
     }
     
-    if (btnCancelHabit) {
-        btnCancelHabit.addEventListener('click', () => {
+    if (btnCancel) {
+        btnCancel.addEventListener('click', () => {
             document.getElementById('addHabitForm').style.display = 'none';
             resetForm();
         });
@@ -277,7 +281,8 @@ function setupModalHandlers() {
 // Tracking Modal Handlers
 function setupTrackingHandlers() {
     const btnCloseTracking = document.getElementById('btnCloseTracking');
-    const btnAddEntry = document.getElementById('btnAddEntry');
+    // FIXED: Changed btnAddEntry → btnAddCustom
+    const btnAddCustom = document.getElementById('btnAddCustom');
     const trackingValue = document.getElementById('trackingValue');
     
     if (btnCloseTracking) {
@@ -286,8 +291,8 @@ function setupTrackingHandlers() {
         });
     }
     
-    if (btnAddEntry && trackingValue) {
-        btnAddEntry.addEventListener('click', () => {
+    if (btnAddCustom && trackingValue) {
+        btnAddCustom.addEventListener('click', () => {
             const habitId = document.getElementById('trackingHabitId').value;
             const value = parseFloat(trackingValue.value);
             
@@ -362,21 +367,23 @@ function setupExportHandlers() {
 
 // Calendar Handlers
 function setupCalendarHandlers() {
-    const btnViewWeek = document.getElementById('btnViewWeek');
-    const btnViewMonth = document.getElementById('btnViewMonth');
+    // FIXED: Changed btnViewWeek → btnWeekView
+    const btnWeekView = document.getElementById('btnWeekView');
+    // FIXED: Changed btnViewMonth → btnMonthView
+    const btnMonthView = document.getElementById('btnMonthView');
     const btnCloseWeek = document.getElementById('btnCloseWeek');
     const btnCloseMonth = document.getElementById('btnCloseMonth');
     const btnPrevMonth = document.getElementById('btnPrevMonth');
     const btnNextMonth = document.getElementById('btnNextMonth');
     
-    if (btnViewWeek) {
-        btnViewWeek.addEventListener('click', () => {
+    if (btnWeekView) {
+        btnWeekView.addEventListener('click', () => {
             document.getElementById('weekViewModal').style.display = 'flex';
         });
     }
     
-    if (btnViewMonth) {
-        btnViewMonth.addEventListener('click', () => {
+    if (btnMonthView) {
+        btnMonthView.addEventListener('click', () => {
             document.getElementById('monthViewModal').style.display = 'flex';
             render();
         });
