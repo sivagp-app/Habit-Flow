@@ -2,6 +2,7 @@
  * Habit Manager Module
  * Handles all habit CRUD operations and tracking logic
  * Phase 2A - Modular Architecture
+ * FIXED: Initialize today's completion with value: 0 on habit creation
  */
 
 import { getTodayString } from '../utils/dateHelpers.js';
@@ -14,6 +15,7 @@ export class HabitManager {
     
     /**
      * Create a new habit
+     * FIXED: Initialize today's completion with value: 0 to prevent showing "1 / goal"
      */
     createHabit(habitData, habits, completions) {
         const newHabit = {
@@ -23,7 +25,17 @@ export class HabitManager {
         };
         
         habits.push(newHabit);
+        
+        // Initialize completions for this habit
         completions[newHabit.id] = {};
+        
+        // FIXED: Initialize today's completion with value: 0 to prevent showing "1" on creation
+        const today = getTodayString();
+        completions[newHabit.id][today] = {
+            completed: false,
+            value: 0,
+            entries: []
+        };
         
         return newHabit;
     }
