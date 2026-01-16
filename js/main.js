@@ -155,8 +155,8 @@ function setupHabitFormHandlers() {
 	// Category selection
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
-            this.classList.add('selected');
+            document.querySelectorAll('.category-btn').forEach(b => { b.classList.remove('selected'); b.style.borderColor = ''; });
+            this.classList.add('selected'); this.style.borderColor = this.dataset.color;
             document.getElementById('selectedCategory').value = this.dataset.category;
             document.getElementById('selectedCategoryColor').value = this.dataset.color;
         });
