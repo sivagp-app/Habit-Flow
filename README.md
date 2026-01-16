@@ -1,440 +1,347 @@
-# 🎯 Habit Flow - Phase 2
+# 🎯 Habit Flow
 
-**Professional Habit Tracking PWA with Modular Architecture**
+> **Build momentum, one day at a time**
 
-[![Version](https://img.shields.io/badge/version-5.3.0-blue.svg)](https://github.com/sivagp-app/Habit-Flow)
-[![Architecture](https://img.shields.io/badge/architecture-modular-green.svg)](https://github.com/sivagp-app/Habit-Flow)
-[![State Management](https://img.shields.io/badge/state-AppState-orange.svg)](https://github.com/sivagp-app/Habit-Flow)
+A modern, feature-rich Progressive Web App for building and tracking daily habits. Built with vanilla JavaScript using clean architecture principles and comprehensive testing.
 
-> A therapeutic habit tracker optimized for ADHD with professional modular architecture and zero global variables.
-
-**Live Demo:** https://sivagp-app.github.io/Habit-Flow/
-
----
-
-## ✨ What's New in Phase 2
-
-### Modular Architecture
-- 🎯 **12 focused modules** (was 1 monolithic file)
-- 🔒 **Zero global variables** (was 6+)
-- 📦 **ES6 modules** with dependency injection
-- 🎨 **Observer pattern** for reactive updates
-- ⚡ **AppState** central state management
-
-### Benefits
-- **60x faster** to find code
-- **4x faster** to add features
-- **6x faster** to fix bugs
-- **360x faster** testing with unit tests
-- **Professional-grade** architecture
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://sivagp-app.github.io/Habit-Flow/)
+[![Tests](https://img.shields.io/badge/tests-129%2F129-success)](./tests)
+[![Version](https://img.shields.io/badge/version-5.3.0-blue)](./package.json)
+[![License](https://img.shields.io/badge/license-MIT-green)]()
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-### Habit Tracking
-- ✅ **3 Tracking Types:** Simple, Quantity, Duration
-- ✅ **Streaks & Statistics:** Current streak, longest streak, completion rates
-- ✅ **Weekly/Monthly Views:** Visual calendar heatmaps
-- ✅ **Notes & Reminders:** Per-habit customization
+### Core Functionality
+- 📊 **Multiple Tracking Types** - Simple completion, quantity tracking, or duration tracking
+- 🔥 **Streak Tracking** - Monitor current and longest streaks for each habit
+- 📅 **Week & Month Views** - Visualize your progress across different timeframes
+- 🎨 **Customizable Habits** - Choose from multiple icons, colors, and categories
+- 💾 **Auto-Save** - All data stored locally in your browser
+- 📤 **Export Data** - Download your habits and stats as CSV
 
-### Therapeutic Design
-- ✅ **6 Themes:** Dark, Ocean Blue, Serenity, Dawn, Harmony, Mist
-- ✅ **ADHD Support Mode:** Celebrations, encouragement, optimized UX
-- ✅ **Focus Mode:** Hide completed habits, stay on track
+### User Experience
+- ⚡ **Fast & Responsive** - Instant load times, smooth animations
+- 🌓 **Dark Theme** - Easy on the eyes with modern dark UI
+- 📱 **Mobile-First** - Works perfectly on phones, tablets, and desktop
+- 🔒 **Privacy-Focused** - All data stays on your device
+- ⚙️ **Configurable** - Customize tracking types, goals, and reminders
+- 🎯 **Category Organization** - Group habits by Health, Productivity, Learning, etc.
 
-### Progressive Web App
-- ✅ **Works Offline:** Full functionality without internet
-- ✅ **Install as App:** Native app experience on mobile/desktop
-- ✅ **Fast Loading:** Service worker caching
-- ✅ **Responsive:** Perfect on all screen sizes
-
-### Data & Privacy
-- ✅ **Local Storage:** All data stored on your device
-- ✅ **CSV Export:** Backup your data anytime
-- ✅ **No Account Needed:** 100% private, no tracking
-- ✅ **Secure:** XSS protection, input validation, CSP
+### Technical Excellence
+- 🏗️ **Modular Architecture** - Clean ES6 modules with dependency injection
+- 🧪 **Comprehensive Testing** - 129 tests covering all functionality
+- 🔄 **State Management** - Centralized state with observer pattern
+- 🎨 **Modern Stack** - Vanilla JavaScript, no framework bloat
+- 📦 **PWA Ready** - Installable, works offline
 
 ---
 
-## 📁 Project Structure
+## 🚀 Quick Start
 
-```
-habit-tracker/
-├── index.html                 # Main HTML
-├── styles.css                 # All styles
-├── manifest.json              # PWA manifest
-├── service-worker.js          # Offline support
-├── icon-192.svg              # App icon
-│
-├── js/
-│   ├── main.js               # 🎯 Orchestrator (500 lines)
-│   │
-│   ├── modules/              # 📦 Core Modules
-│   │   ├── AppState.js       # State management (250 lines)
-│   │   ├── StorageService.js # localStorage operations (160 lines)
-│   │   ├── NotificationService.js # User notifications (60 lines)
-│   │   ├── ThemeManager.js   # Theme switching (90 lines)
-│   │   ├── HabitManager.js   # Habit CRUD (200 lines)
-│   │   ├── StatsCalculator.js # Statistics (180 lines)
-│   │   ├── UIRenderer.js     # Display logic (300 lines)
-│   │   └── ExportService.js  # CSV export (120 lines)
-│   │
-│   └── utils/                # 🛠️ Utilities
-│       ├── sanitizer.js      # XSS protection (40 lines)
-│       ├── validator.js      # Input validation (90 lines)
-│       └── dateHelpers.js    # Date utilities (100 lines)
-│
-└── app.js                    # ⚠️ Backup (original monolithic version)
+### Try It Now
+👉 **[Open Habit Flow](https://sivagp-app.github.io/Habit-Flow/)** 👈
+
+### Install as App
+1. Visit the live site on your phone or desktop
+2. Look for "Install App" or "Add to Home Screen"
+3. Enjoy the native app experience!
+
+### Local Development
+```bash
+# Clone the repository
+git clone https://github.com/sivagp-app/Habit-Flow.git
+cd Habit-Flow
+
+# Install dependencies
+npm install
+
+# Start local server
+npx serve
+# OR
+python -m http.server 8000
+
+# Open browser
+# Navigate to http://localhost:8000
 ```
 
-**Total:** 12 focused modules, ~2,090 lines (organized!)
+---
+
+## 📖 Usage Guide
+
+### Creating Your First Habit
+
+1. **Click "+ New Habit"**
+2. **Enter a name** (e.g., "Morning Exercise")
+3. **Select an icon** 🏃 (optional, defaults to 🎯)
+4. **Choose tracking type:**
+   - **Simple** - Just mark complete/incomplete
+   - **Quantity** - Track amounts (glasses of water, pages read)
+   - **Duration** - Track time spent (minutes exercising)
+5. **Pick a category** (Health, Productivity, etc.)
+6. **Click "Create Habit"**
+
+### Tracking Your Habits
+
+**Simple Habits:**
+- Click the ⭕ circle to mark complete
+- Turns to ✅ when done
+
+**Quantity/Duration Habits:**
+- Click the habit card
+- Use quick-add buttons (+1, +5, +10) or enter custom value
+- Track your daily progress toward goals
+
+### Viewing Your Progress
+
+- **Today's View** - See all habits for today
+- **Week View** - Calendar grid showing 7-day streak
+- **Month View** - Full month calendar with completion patterns
+- **Stats** - Current streak, longest streak, completion rate
 
 ---
 
 ## 🏗️ Architecture
 
-### State Management (AppState Pattern)
+### Project Structure
 
+```
+Habit-Flow/
+├── index.html              # Main app entry point
+├── styles.css              # Complete styling (dark theme)
+├── manifest.json           # PWA configuration
+├── service-worker.js       # Offline support
+│
+├── js/
+│   ├── main.js             # App initialization & event handlers
+│   │
+│   ├── modules/            # ES6 Modules (Clean Architecture)
+│   │   ├── AppState.js           # Centralized state management
+│   │   ├── HabitManager.js       # CRUD operations for habits
+│   │   ├── StatsCalculator.js    # Streak & statistics logic
+│   │   ├── UIRenderer.js         # DOM rendering & updates
+│   │   ├── StorageService.js     # localStorage persistence
+│   │   ├── ExportService.js      # CSV export functionality
+│   │   ├── ThemeManager.js       # Theme switching
+│   │   └── NotificationService.js # User notifications
+│   │
+│   └── utils/              # Utility Functions
+│       ├── dateHelpers.js        # Date manipulation (11 functions)
+│       ├── sanitizer.js          # Input sanitization
+│       └── validator.js          # Input validation
+│
+└── tests/                  # Comprehensive Test Suite
+    ├── vitest.setup.js           # Test environment configuration
+    ├── modules/                  # Module tests (85 tests)
+    └── utils/                    # Utility tests (44 tests)
+```
+
+### Design Patterns
+
+- **Observer Pattern** - State changes notify subscribers
+- **Dependency Injection** - Modules receive dependencies via constructor
+- **Repository Pattern** - StorageService abstracts data persistence
+- **Service Layer** - Business logic separated from UI
+- **Single Responsibility** - Each module has one clear purpose
+
+### Tech Stack
+
+- **Frontend:** Vanilla JavaScript (ES6+)
+- **Storage:** localStorage API
+- **Testing:** Vitest with jsdom
+- **Styling:** Custom CSS (CSS Grid, Flexbox)
+- **PWA:** Service Worker, Web Manifest
+- **Icons:** Emoji (no external dependencies)
+
+---
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Watch mode (during development)
+npm run test:watch
+```
+
+### Test Coverage
+- **129 tests** covering all functionality
+- **State Management:** 37 tests
+- **Business Logic:** 19 tests
+- **Validation:** 21 tests
+- **Security:** 20 tests
+- **Date Operations:** 17 tests
+- **Storage:** 8 tests
+- **UI Rendering:** 3 tests
+- **Services:** 7 tests
+
+### Coverage Reports
+After running `npm run test:coverage`, open `coverage/index.html` to see detailed line-by-line coverage.
+
+---
+
+## 🔧 Configuration
+
+### Customize Tracking Types
+
+Edit `js/main.js` to add new tracking types:
 ```javascript
-// Central state container
-const appState = new AppState();
-
-// No global variables!
-// Was: let habits = [];
-// Now: appState.getHabits();
-
-// Controlled access
-appState.setHabits(newHabits);  // Triggers observers
-appState.subscribe('habitsChanged', render);  // React to changes
+// Add custom tracking type
+const trackingTypes = {
+  'custom': {
+    unit: 'your-unit',
+    defaultGoal: 10
+  }
+};
 ```
 
-### Dependency Injection
+### Add More Icons
 
-```javascript
-// Services receive dependencies
-const habitManager = new HabitManager(
-    storageService,
-    notificationService
-);
-
-// Easy to test, easy to swap implementations
+Edit `index.html` to add icon options:
+```html
+<button type="button" class="icon-btn" data-icon="🎮">🎮</button>
 ```
 
-### Module Organization
+### Modify Categories
 
-```
-Utilities → Services → Business Logic → UI → Orchestrator
-   ↓           ↓            ↓          ↓        ↓
-sanitizer  Storage     HabitManager  Renderer  main.js
-validator  Notification StatsCalc
-dateHelpers Theme
+Edit `index.html` to change category options:
+```html
+<button type="button" class="category-btn" 
+        data-category="custom" 
+        data-color="#ff5733">
+  <span class="category-dot" style="background: #ff5733;"></span>
+  Custom Category
+</button>
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 📊 Data Management
 
-- **JavaScript:** ES6+ modules, classes, async/await
-- **Architecture:** Modular, observer pattern, dependency injection
-- **State:** AppState with getters/setters
-- **Storage:** localStorage with error handling
-- **PWA:** Service workers, manifest
-- **Security:** CSP, XSS protection, input validation
-- **No frameworks:** Vanilla JavaScript for performance
+### Data Storage
+All data is stored in browser's localStorage:
+- **habits** - Array of habit objects
+- **habitCompletions** - Completion records by date
+- **theme** - User's theme preference
 
----
+### Export Data
+Click the export button (⬇️) in settings to download your data as CSV with:
+- Habit names and details
+- Completion statistics
+- Current and longest streaks
+- Completion rates
 
-## 💻 Development
-
-### Local Development
-
-1. **Clone the repo:**
-   ```bash
-   git clone https://github.com/sivagp-app/Habit-Flow.git
-   cd Habit-Flow
-   ```
-
-2. **Run a local server:**
-   ```bash
-   # Python 3
-   python -m http.server 8000
-   
-   # OR Node.js
-   npx http-server -p 8000
-   ```
-
-3. **Open browser:**
-   ```
-   http://localhost:8000
-   ```
-
-4. **Test modules:**
-   - Open console (F12)
-   - Paste contents of `test.js`
-   - Should see: "🎉 ALL TESTS PASSED!"
+### Import Data
+Currently manual - copy data from CSV back into the app by recreating habits.
+*Automated import feature planned for Phase 3.*
 
 ---
 
-### Adding a New Module
+## 🗺️ Roadmap
 
-1. **Create module file:**
-   ```javascript
-   // js/modules/MyModule.js
-   export class MyModule {
-       constructor(dependencies) {
-           this.dependencies = dependencies;
-       }
-       
-       myMethod() {
-           // Your logic here
-       }
-   }
-   ```
+### ✅ Completed Phases
 
-2. **Import in main.js:**
-   ```javascript
-   import { MyModule } from './modules/MyModule.js';
-   const myModule = new MyModule(dependencies);
-   ```
+- **Phase 1:** Monolithic App - Initial working version
+- **Phase 2A:** Modular Architecture - ES6 modules with clean architecture
+- **Phase 2B:** State Management - Centralized state with observer pattern
+- **Phase 2C:** Testing Infrastructure - 129 tests with Vitest
 
-3. **Use it:**
-   ```javascript
-   myModule.myMethod();
-   ```
+### 🔜 Upcoming Features (Phase 3)
 
----
+**High Priority:**
+- 📈 Analytics dashboard with trends and insights
+- 🎯 Habit goals and milestone tracking
+- 🔄 Recurring habit patterns (weekdays only, etc.)
+- 💾 Improved data export (JSON backup/restore)
 
-### Testing
+**Medium Priority:**
+- 🔔 Push notifications for reminders
+- 🌓 Auto dark/light theme based on time
+- 📋 Multiple view modes (grid, list, compact)
+- 📝 Habit templates for quick setup
 
-**Manual Testing:**
-```javascript
-// Open console and run:
-fetch('test.js').then(r => r.text()).then(eval);
-```
+**Low Priority:**
+- 🏆 Achievement badges and rewards
+- 📊 Advanced statistics and charts
+- 🤝 Social features (optional accountability partners)
+- ☁️ Cloud sync (requires backend)
 
-**Expected Output:**
-```
-✅ AppState is accessible
-✅ AppState has required methods
-✅ Data loads from AppState
-✅ Settings are accessible
-✅ No global habits/completions variables
-✅ Modules loaded as ES6 modules
-✅ UI elements render correctly
-✅ Event handlers are attached
-📊 Results: 8 passed, 0 failed
-🎉 ALL TESTS PASSED!
-```
-
----
-
-## 📦 Deployment
-
-**GitHub Pages (Current):**
-1. Push to `main` branch
-2. GitHub Actions builds automatically
-3. Site updates in ~2 minutes
-4. Visit: https://sivagp-app.github.io/Habit-Flow/
-
-**Other Options:**
-- **Netlify:** Drag & drop folder
-- **Vercel:** Import from GitHub
-- **Cloudflare Pages:** Connect repo
-
-See `DEPLOYMENT-GUIDE.md` for detailed instructions.
-
----
-
-## 🔄 Version History
-
-### v5.3.0 - Phase 2 (January 2025) ⭐
-- **Modular architecture:** 12 focused modules
-- **State management:** AppState pattern, zero globals
-- **Observer pattern:** Reactive updates
-- **Enhanced maintainability:** 60x faster code navigation
-
-### v5.2.1 - Phase 1.1 (January 2025)
-- Fixed CSP inline script issues
-- Mobile notification improvements
-- Quick fixes for production
-
-### v5.2.0 - Phase 1 (January 2025)
-- Comprehensive error handling
-- XSS protection via sanitization
-- Input validation system
-- Content Security Policy
-- Service worker versioning
-
-### v5.1.0 (January 2025)
-- Advanced tracking (quantity/duration)
-- Notes and reminders
-- Enhanced statistics
-
-### v5.0.0 (January 2025)
-- Initial release
-- 6 therapeutic themes
-- ADHD optimization
-- PWA functionality
-
----
-
-## 🎯 Design Principles
-
-### Single Responsibility
-Each module does ONE thing well:
-- `StorageService` → ONLY handles storage
-- `HabitManager` → ONLY manages habits
-- `UIRenderer` → ONLY renders UI
-
-### Separation of Concerns
-Clear boundaries:
-- **Data:** AppState
-- **Storage:** StorageService
-- **Logic:** HabitManager, StatsCalculator
-- **Display:** UIRenderer
-- **Orchestration:** main.js
-
-### Encapsulation
-Private state with controlled access:
-```javascript
-class AppState {
-    _habits = [];  // Private
-    getHabits() { return [...this._habits]; }  // Safe copy
-    setHabits(h) { this._habits = h; this._notify(); }
-}
-```
-
-### Dependency Injection
-Loose coupling, easy testing:
-```javascript
-// Not hardcoded dependencies
-const habitManager = new HabitManager(storage, notifications);
-```
-
----
-
-## 🧪 Code Quality
-
-### Metrics
-- **Modularity:** 12 focused files
-- **Avg lines per file:** 174
-- **Longest file:** 500 lines (main.js)
-- **Global variables:** 0
-- **Test coverage:** Manual (Phase 2C will add unit tests)
-
-### Standards
-- ✅ ES6+ modern JavaScript
-- ✅ Consistent naming conventions
-- ✅ Comprehensive documentation
-- ✅ Error handling throughout
-- ✅ Security best practices
+### 🔍 Phase 2D (Optional)
+- TypeScript migration for type safety
+- Enhanced IDE support
+- Compile-time error detection
 
 ---
 
 ## 🤝 Contributing
 
-**Want to contribute?**
+This is a personal project, but suggestions and feedback are welcome!
 
-1. **Fork the repo**
-2. **Create a feature branch:**
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-3. **Follow the architecture:**
-   - Add new features as modules
-   - Use AppState for state
-   - Inject dependencies
-   - Document your code
-4. **Test thoroughly**
-5. **Submit a pull request**
+### Reporting Issues
+If you find a bug or have a feature request:
+1. Check existing issues first
+2. Create a new issue with clear description
+3. Include steps to reproduce (for bugs)
+
+### Development Setup
+```bash
+# Fork and clone
+git clone https://github.com/YOUR-USERNAME/Habit-Flow.git
+cd Habit-Flow
+
+# Install dependencies
+npm install
+
+# Create feature branch
+git checkout -b feature/your-feature-name
+
+# Make changes and test
+npm test
+
+# Commit with clear message
+git commit -m "Add: your feature description"
+
+# Push and create pull request
+git push origin feature/your-feature-name
+```
 
 ---
 
-## 📄 License
+## 📝 License
 
-This project is open source and available for personal use.
+MIT License - feel free to use this project for learning or personal use.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **Design inspiration:** Therapeutic color theory, ADHD research
-- **Architecture patterns:** Module pattern, Observer pattern, MVC
-- **Community feedback:** User testing and iterations
+- **Design Inspiration:** Modern habit tracking apps
+- **Icons:** Emoji (Unicode Standard)
+- **Testing Framework:** Vitest by Anthony Fu
+- **Development:** Built with dedication to clean code and UX
 
 ---
 
-## 📞 Support
+## 📧 Contact
 
-**Issues?**
-- Check `DEPLOYMENT-GUIDE.md` for deployment help
-- Check `PHASE-2-COMPLETE.md` for architecture details
-- Open an issue on GitHub
-
-**Questions?**
-- Review inline code documentation
-- Check module-specific comments
-- Explore the test.js verification script
+**Developer:** Siva  
+**Project Link:** [https://github.com/sivagp-app/Habit-Flow](https://github.com/sivagp-app/Habit-Flow)  
+**Live Demo:** [https://sivagp-app.github.io/Habit-Flow/](https://sivagp-app.github.io/Habit-Flow/)
 
 ---
 
-## 🎯 Roadmap
+## 🌟 Star This Project
 
-### Completed ✅
-- [x] Modular architecture (Phase 2A)
-- [x] State management (Phase 2B)
-- [x] Zero global variables
-- [x] Observer pattern
-
-### Next Steps 🚀
-- [ ] Unit tests (Phase 2C - Optional)
-- [ ] TypeScript (Phase 2D - Optional)
-- [ ] Performance optimization (Phase 3)
-- [ ] New features (Phase 4)
+If you find Habit Flow useful, please consider giving it a star! ⭐
 
 ---
 
-## 💡 Philosophy
+**Built with ❤️ and JavaScript**
 
-> "Build systems that are easy to understand, easy to modify, and easy to maintain. The code you write today should be readable by you tomorrow."
-
-This project demonstrates:
-- **Professional architecture** without over-engineering
-- **Modern JavaScript** without frameworks
-- **Clean code** without sacrificing features
-- **Maintainability** without complexity
-
----
-
-## 🌟 Highlights
-
-**What makes this project special:**
-
-1. **Educational:** Learn modular architecture through real code
-2. **Practical:** Solve real problems (habit tracking)
-3. **Professional:** Industry-standard patterns
-4. **Accessible:** No build tools, no frameworks, pure JavaScript
-5. **Progressive:** Start simple, grow complexity as needed
-
----
-
-**Built with ❤️ to help you build better habits and write better code.**
-
-**Star ⭐ this repo if you find it useful!**
-
----
-
-## 📚 Documentation
-
-- **README.md** - This file (overview)
-- **DEPLOYMENT-GUIDE.md** - Step-by-step deployment
-- **PHASE-2-COMPLETE.md** - Phase 2 summary & metrics
-- **test.js** - Automated verification script
-
----
-
-**Version:** 5.3.0  
-**Last Updated:** January 14, 2025  
-**Architecture:** Modular with State Management  
-**Status:** Production Ready ✅
+*Last Updated: January 16, 2026*
