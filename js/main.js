@@ -151,6 +151,16 @@ function setupHabitFormHandlers() {
             document.getElementById('selectedIcon').value = btn.dataset.icon;
         });
     });
+	
+	// Category selection
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('selectedCategory').value = this.dataset.category;
+            document.getElementById('selectedCategoryColor').value = this.dataset.color;
+        });
+    });
     
     // Tracking type selection
     document.querySelectorAll('.tracking-type-btn').forEach(btn => {
@@ -539,6 +549,7 @@ function saveHabit() {
         dailyGoal = parseInt(document.getElementById('durationGoal').value) || 30;
     }
     
+    const selectedCategory = document.getElementById('selectedCategory').value;
     const habitData = {
         name: habitName,
         icon: selectedIcon,
@@ -546,6 +557,7 @@ function saveHabit() {
         unit: unit,
         dailyGoal: dailyGoal,
         color: habitColor,
+        category: selectedCategory || null,
         notes: habitNotes
     };
     
@@ -592,6 +604,16 @@ function editHabit(habitId) {
             btn.classList.add('selected');
         }
     });
+    
+	// Restore category selection
+    if (habit.category) {
+        document.getElementById('selectedCategory').value = habit.category;
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            if (btn.dataset.category === habit.category) {
+                btn.classList.add('selected');
+            }
+        });
+    }
     
     // Set tracking type
     const trackingType = habit.trackingType || 'simple';
@@ -705,7 +727,7 @@ function deleteEntry(habitId, entryIndex) {
 
 function resetForm() {
     document.getElementById('habitName').value = '';
-    document.getElementById('selectedIcon').value = '';
+    document.getElementById('selectedIcon').value = '🎯';
     document.getElementById('editingHabitId').value = '';
     document.getElementById('habitNotes').value = '';
     document.getElementById('quantityUnit').value = 'cups';
@@ -714,7 +736,11 @@ function resetForm() {
     document.getElementById('selectedTrackingType').value = 'simple';
     
     document.querySelectorAll('.icon-btn').forEach(btn => btn.classList.remove('selected'));
-    document.querySelectorAll('.tracking-type-btn').forEach(btn => btn.classList.remove('active'));
+        // Clear category selection
+    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+    document.getElementById('selectedCategory').value = '';
+    document.getElementById('selectedCategoryColor').value = '';
+	document.querySelectorAll('.tracking-type-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tracking-type-btn')[0]?.classList.add('active');
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
     
