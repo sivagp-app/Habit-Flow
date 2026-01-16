@@ -1,0 +1,29 @@
+{
+  "name": "habit-flow",
+  "version": "5.3.0",
+  "description": "Therapeutic habit tracking PWA with comprehensive test suite",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:verbose": "vitest run --reporter=verbose"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "happy-dom": "^12.10.3",
+    "jsdom": "^23.0.1",
+    "vitest": "^1.1.0"
+  },
+  "keywords": [
+    "habit-tracker",
+    "pwa",
+    "adhd",
+    "therapeutic",
+    "testing"
+  ],
+  "author": "Siva",
+  "license": "MIT"
+}

@@ -105,26 +105,31 @@ export class StatsCalculator {
         };
     }
     
-    /**
-     * Calculate completion rate for a habit over last N days
-     */
-    calculateCompletionRate(habitId, completions, days = 30) {
-        const habitCompletions = completions[habitId] || {};
-        let completed = 0;
+/**
+ * Calculate completion rate for a habit over last N days
+ */
+calculateCompletionRate(habitOrId, completions, days = 30) {
+    // Handle both habit object and habitId string
+    const habitId = typeof habitOrId === 'string' ? habitOrId : habitOrId?.id;
+    
+    if (!habitId) return 0;
+    
+    const habitCompletions = completions[habitId] || {};
+    let completed = 0;
+    
+    for (let i = 0; i < days; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateString = date.toISOString().split('T')[0];
         
-        for (let i = 0; i < days; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateString = date.toISOString().split('T')[0];
-            
-            const completion = habitCompletions[dateString];
-            if (completion && completion.completed) {
-                completed++;
-            }
+        const completion = habitCompletions[dateString];
+        if (completion && completion.completed) {
+            completed++;
         }
-        
-        return Math.round((completed / days) * 100);
     }
+    
+    return Math.round((completed / days) * 100);
+}
     
     /**
      * Calculate progress percentage for quantity/duration habits
