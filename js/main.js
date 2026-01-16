@@ -7,8 +7,6 @@
  */
 
 // Import utilities
-import { sanitizeHabitName, sanitizeNotes } from './utils/sanitizer.js';
-import { Validator } from './utils/validator.js';
 import { getTodayString } from './utils/dateHelpers.js';
 
 // Import modules
@@ -20,6 +18,7 @@ import { HabitManager } from './modules/HabitManager.js';
 import { StatsCalculator } from './modules/StatsCalculator.js';
 import { UIRenderer } from './modules/UIRenderer.js';
 import { ExportService } from './modules/ExportService.js';
+import { sanitizeHabitName, sanitizeNotes } from './utils/sanitizer.js';
 
 // ============================================================================
 // INITIALIZE SERVICES
@@ -550,12 +549,12 @@ function saveHabit() {
         notes: habitNotes
     };
     
-    // Validate
-    const validation = Validator.habit(habitData);
-    if (!validation.valid) {
-        notificationService.error(validation.errors.join('. '));
-        return;
-    }
+    //     // Validate
+    //     const validation = Validator.habit(habitData);
+    //     if (!validation.valid) {
+    //         notificationService.error(validation.errors.join('. '));
+    //         return;
+    //     }
     
     const habits = appState.getHabits();
     const completions = appState.getCompletions();

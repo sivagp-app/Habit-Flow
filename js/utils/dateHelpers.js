@@ -1,118 +1,105 @@
 /**
- * dateHelpers.js - Date manipulation utilities
- * Provides functions for date formatting and calculations
+ * Date Helper Utility Module
+ * Provides common date manipulation and formatting functions
+ * Phase 2A - Modular Architecture
  */
 
 /**
  * Get today's date as YYYY-MM-DD string
- * @returns {string} - Today's date in ISO format
  */
 export function getTodayString() {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
+    return new Date().toISOString().split('T')[0];
 }
 
 /**
- * Format a date as a readable string
- * @param {Date|string} date - Date object or ISO date string
- * @returns {string} - Formatted date string (e.g., "Jan 15, 2026") or "Invalid Date"
+ * Format date to YYYY-MM-DD
  */
 export function formatDate(date) {
-  let dateObj;
-  
-  // Handle string input - force UTC to avoid timezone issues
-  if (typeof date === 'string') {
-    // Parse as UTC by appending timezone if not present
-    const dateStr = date.includes('T') ? date : date + 'T12:00:00Z';
-    dateObj = new Date(dateStr);
-  } else if (date instanceof Date) {
-    dateObj = date;
-  } else {
-    return 'Invalid Date';
-  }
-  
-  // Check for invalid date
-  if (isNaN(dateObj.getTime())) {
-    return 'Invalid Date';
-  }
-  
-  // Format as "Jan 15, 2026"
-  const options = { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' };
-  return dateObj.toLocaleDateString('en-US', options);
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 /**
- * Get day of week name from date string
- * @param {string} dateStr - ISO date string (YYYY-MM-DD)
- * @returns {string} - Day name (e.g., "Monday")
+ * Get date N days ago
  */
-export function getDayOfWeek(dateStr) {
-  const date = new Date(dateStr + 'T12:00:00Z');
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return days[date.getUTCDay()];
+export function getDaysAgo(days) {
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    return formatDate(date);
 }
 
 /**
- * Get array of dates for current week (Monday to Sunday)
- * Returns dates that when parsed with new Date(dateStr) will show correct day
- * @returns {string[]} - Array of 7 ISO date strings
+ * Get start of week (Sunday)
  */
-export function getWeekDates() {
-  const today = new Date();
-  
-  // Get current day in local time (0 = Sunday, 1 = Monday, etc.)
-  const currentDay = today.getDay();
-  
-  // Calculate offset to get to Monday
-  let daysFromMonday;
-  if (currentDay === 0) {
-    // Sunday - go back 6 days to get to Monday
-    daysFromMonday = 6;
-  } else {
-    // Other days - go back (currentDay - 1) days
-    daysFromMonday = currentDay - 1;
-  }
-  
-  // Create array for the week
-  const dates = [];
-  
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(today);
-    // Calculate days offset: from Monday (negative) plus current position (positive)
-    date.setDate(today.getDate() - daysFromMonday + i);
+export function getStartOfWeek(date = new Date()) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+}
+
+/**
+ * Get array of dates for current week
+ */
+export function getCurrentWeekDates() {
+    const dates = [];
+    const startOfWeek = getStartOfWeek();
     
-    // Use local date string to avoid timezone issues in tests
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(startOfWeek);
+        date.setDate(startOfWeek.getDate() + i);
+        dates.push(formatDate(date));
+    }
     
-    dates.push(`${year}-${month}-${day}`);
-  }
-  
-  return dates;
+    return dates;
 }
 
 /**
- * Check if a date string is today
- * @param {string} dateStr - ISO date string (YYYY-MM-DD)
- * @returns {boolean} - True if date is today
+ * Get days in month
  */
-export function isToday(dateStr) {
-  return dateStr === getTodayString();
+export function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
 }
 
 /**
- * Calculate days between two dates
- * @param {string} date1 - First ISO date string
- * @param {string} date2 - Second ISO date string
- * @returns {number} - Number of days between dates (can be negative)
+ * Get first day of month (0 = Sunday, 6 = Saturday)
  */
-export function daysBetween(date1, date2) {
-  const d1 = new Date(date1 + 'T00:00:00');
-  const d2 = new Date(date2 + 'T00:00:00');
-  
-  const diffTime = d2.getTime() - d1.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-  return diffDays;
+export function getFirstDayOfMonth(year, month) {
+    return new Date(year, month, 1).getDay();
+}
+
+/**
+ * Parse date from YYYY-MM-DD string
+ */
+export function parseDate(dateString) {
+    return new Date(dateString + 'T00:00:00');
+}
+
+/**
+ * Check if date is today
+ */
+export function isToday(dateString) {
+    return dateString === getTodayString();
+}
+
+/**
+ * Get month name
+ */
+export function getMonthName(monthIndex) {
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[monthIndex];
+}
+
+/**
+ * Get day name
+ */
+export function getDayName(dayIndex) {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[dayIndex];
 }
