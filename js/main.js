@@ -383,12 +383,18 @@ function addTrackingValue(habitId, value) {
     
     if (!habit) return;
     
-    // Validate tracking value
-    const validation = Validator.trackingValue(value, habit);
-    if (!validation.valid) {
-        notificationService.error(validation.errors.join('. '));
+    // Validate tracking value - simple check
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue <= 0) {
+        notificationService.error('Please enter a valid positive number');
         return;
     }
+    //     // Validate tracking value
+    //     const validation = Validator.trackingValue(value, habit);
+    //     if (!validation.valid) {
+    //         notificationService.error(validation.errors.join('. '));
+    //         return;
+    //     }
     
     const result = habitManager.addTrackingEntry(
         habitId, 
@@ -532,6 +538,12 @@ function setupHabitActionsHandlers() {
 
 function saveHabit() {
     const habitName = sanitizeHabitName(document.getElementById('habitName').value);
+    
+    // Validate habit name is not empty
+    if (!habitName || habitName.trim() === '') {
+        notificationService.error('Please enter a habit name');
+        return;
+    }
     const selectedIcon = document.getElementById('selectedIcon').value;
     const trackingType = document.getElementById('selectedTrackingType').value;
     const habitColor = document.getElementById('selectedColor').value;
