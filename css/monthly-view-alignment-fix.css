@@ -1,0 +1,428 @@
+/**
+ * Monthly View Alignment Fix - Phase 3
+ * Separated day headers from date grid for perfect alignment
+ * This CSS works with the restructured UIRenderer.js
+ */
+
+/* =================================================================
+   MONTHLY VIEW TITLE - "January 2026" visibility fix
+   ================================================================= */
+#currentMonth {
+    color: rgb(226, 232, 240) !important; /* Light slate - works for both themes since it's in dark header */
+    font-weight: 600;
+}
+
+/* Keep it light even in light theme (since header area is dark) */
+body.light-ocean #currentMonth,
+body.light-minimal #currentMonth {
+    color: rgb(226, 232, 240) !important; /* Light text for dark header */
+}
+
+/* Month navigation buttons - make them visible and prominent */
+.btn-month-nav,
+#btnPrevMonth,
+#btnNextMonth {
+    background: rgba(226, 232, 240, 0.1) !important;
+    color: rgb(226, 232, 240) !important;
+    border: 1px solid rgba(226, 232, 240, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+}
+
+.btn-month-nav:hover,
+#btnPrevMonth:hover,
+#btnNextMonth:hover {
+    background: rgba(226, 232, 240, 0.2) !important;
+    border-color: rgba(226, 232, 240, 0.4) !important;
+    transform: scale(1.05);
+}
+
+/* Light theme navigation buttons */
+body.light-ocean .btn-month-nav,
+body.light-ocean #btnPrevMonth,
+body.light-ocean #btnNextMonth,
+body.light-minimal .btn-month-nav,
+body.light-minimal #btnPrevMonth,
+body.light-minimal #btnNextMonth {
+    background: rgba(255, 255, 255, 0.9) !important; /* White background for visibility */
+    color: rgb(15, 23, 42) !important;
+    border: 1px solid rgba(15, 23, 42, 0.2) !important;
+}
+
+body.light-ocean .btn-month-nav:hover,
+body.light-ocean #btnPrevMonth:hover,
+body.light-ocean #btnNextMonth:hover,
+body.light-minimal .btn-month-nav:hover,
+body.light-minimal #btnPrevMonth:hover,
+body.light-minimal #btnNextMonth:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    border-color: rgba(15, 23, 42, 0.3) !important;
+}
+
+/* =================================================================
+   HEATMAP CONTAINER - Parent wrapper
+   ================================================================= */
+.heatmap-container {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+/* =================================================================
+   DAY HEADERS - Separate grid for Sun-Sat labels
+   ================================================================= */
+.heatmap-day-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 8px; /* Increased spacing */
+    padding: 0 0 8px 0; /* Add padding at bottom */
+    border-bottom: 1px solid rgba(226, 232, 240, 0.15); /* Subtle separator line */
+}
+
+.heatmap-day-label {
+    /* MATCH CELL DISPLAY METHOD EXACTLY */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important; /* Fill grid column like cells */
+    height: 32px !important;
+    
+    /* Styling */
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    color: rgb(226, 232, 240) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    background: transparent !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Even more specific selector */
+.heatmap-container .heatmap-day-headers .heatmap-day-label {
+    color: rgb(226, 232, 240) !important;
+    font-weight: 700 !important;
+}
+
+/* Light theme support for day headers */
+body.light-ocean .heatmap-day-label,
+body.light-ocean .heatmap-container .heatmap-day-headers .heatmap-day-label,
+body.light-minimal .heatmap-day-label,
+body.light-minimal .heatmap-container .heatmap-day-headers .heatmap-day-label {
+    color: rgb(15, 23, 42) !important; /* slate-900 - almost black */
+    font-weight: 800 !important; /* Extra bold */
+}
+
+/* =================================================================
+   HEATMAP GRID - Date cells (1-31)
+   ================================================================= */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+/* =================================================================
+   HEATMAP CELLS - Individual date boxes
+   ================================================================= */
+.heatmap-box {
+    /* Remove aspect-ratio to let cells fill grid width */
+    min-height: 60px !important;
+    max-height: 60px !important;
+    height: 60px !important;
+    width: 100%; /* Fill grid column */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Empty cells (before month starts) */
+.heatmap-box.empty {
+    background: transparent !important;
+    cursor: default;
+}
+
+/* Future dates */
+.heatmap-box.future {
+    background: var(--color-surface-light) !important;
+    opacity: 0.3;
+    cursor: default;
+}
+
+.heatmap-box.future span {
+    color: var(--color-text-muted);
+}
+
+/* Today's date - special styling */
+.heatmap-box.today {
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+/* Hover effect for interactive cells */
+.heatmap-box:not(.empty):not(.future):hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Date number inside cell */
+.heatmap-box span {
+    color: var(--color-text);
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
+}
+
+/* =================================================================
+   TOOLTIPS - Show on hover
+   ================================================================= */
+.heatmap-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(15, 23, 42, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.heatmap-box:hover .heatmap-tooltip {
+    opacity: 1;
+}
+
+/* Tooltip arrow */
+.heatmap-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(15, 23, 42, 0.95);
+}
+
+/* =================================================================
+   LEGEND - Color intensity guide
+   ================================================================= */
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.legend-boxes {
+    display: flex;
+    gap: 4px;
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-label {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+}
+
+/* =================================================================
+   MOBILE RESPONSIVE - Smaller cells and text
+   ================================================================= */
+@media (max-width: 768px) {
+    .heatmap-box {
+        min-height: 45px !important;
+        max-height: 45px !important;
+        height: 45px !important;
+        font-size: 0.75rem;
+    }
+    
+    .heatmap-day-label {
+        font-size: 0.65rem !important;
+        padding: 6px 2px !important;
+        color: rgb(226, 232, 240) !important; /* Dark theme */
+    }
+    
+    /* Light theme day headers in mobile */
+    body.light-ocean .heatmap-day-label,
+    body.light-minimal .heatmap-day-label {
+        color: rgb(15, 23, 42) !important; /* Almost black */
+        font-weight: 800 !important;
+    }
+    
+    .heatmap-grid,
+    .heatmap-day-headers {
+        gap: 6px;
+    }
+    
+    .heatmap-tooltip {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+    }
+    
+    /* Mobile navigation buttons - ensure visibility */
+    .btn-month-nav,
+    #btnPrevMonth,
+    #btnNextMonth {
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 6px 10px !important;
+        font-size: 1.1rem !important;
+        flex-shrink: 0; /* Prevent shrinking */
+    }
+    
+    /* Month selector container - ensure proper spacing */
+    .month-selector {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 0.5rem !important;
+        padding: 0.5rem !important;
+    }
+    
+    /* Month title - allow wrapping on very small screens */
+    #currentMonth {
+        font-size: 0.9rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        text-align: center;
+    }
+    
+    /* CRITICAL: Shrink "Monthly Overview" title text */
+    .modal-header h2,
+    .monthly-view-header h2,
+    h2:has(+ .month-selector),
+    .view-header h2 {
+        font-size: 1.2rem !important; /* Shrink from default */
+        margin: 0.5rem 0 !important;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .heatmap-box {
+        min-height: 38px !important;
+        max-height: 38px !important;
+        height: 38px !important;
+        font-size: 0.7rem;
+    }
+    
+    .heatmap-day-label {
+        font-size: 0.6rem !important;
+        padding: 4px 2px !important;
+        color: rgb(226, 232, 240) !important; /* Dark theme */
+    }
+    
+    /* Light theme day headers in extra small mobile */
+    body.light-ocean .heatmap-day-label,
+    body.light-minimal .heatmap-day-label {
+        color: rgb(15, 23, 42) !important; /* Almost black */
+        font-weight: 800 !important;
+    }
+    
+    .heatmap-grid,
+    .heatmap-day-headers {
+        gap: 4px;
+    }
+    
+    /* Extra small mobile buttons */
+    .btn-month-nav,
+    #btnPrevMonth,
+    #btnNextMonth {
+        min-width: 32px !important;
+        min-height: 32px !important;
+        padding: 4px 8px !important;
+        font-size: 1rem !important;
+    }
+    
+    #currentMonth {
+        font-size: 0.8rem !important;
+    }
+    
+    /* Even smaller "Monthly Overview" for tiny screens */
+    .modal-header h2,
+    .monthly-view-header h2,
+    h2:has(+ .month-selector),
+    .view-header h2 {
+        font-size: 1rem !important;
+        margin: 0.25rem 0 !important;
+    }
+}
+
+/* =================================================================
+   THEME COMPATIBILITY
+   ================================================================= */
+
+/* Light themes - adjust text colors */
+body.light-ocean .heatmap-box span,
+body.light-minimal .heatmap-box span {
+    color: rgb(15, 23, 42);
+}
+
+body.light-ocean .heatmap-tooltip,
+body.light-minimal .heatmap-tooltip {
+    background: rgba(255, 255, 255, 0.98);
+    color: rgb(15, 23, 42);
+    border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+body.light-ocean .heatmap-tooltip::after,
+body.light-minimal .heatmap-tooltip::after {
+    border-top-color: rgba(255, 255, 255, 0.98);
+}
+
+/* ADHD themes - higher contrast */
+body.adhd-mode .heatmap-box:not(.empty):not(.future):hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+body.adhd-mode .heatmap-day-label {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+/* =================================================================
+   ALIGNMENT VERIFICATION NOTES
+   ================================================================= */
+/*
+ * CRITICAL: Both .heatmap-day-headers and .heatmap-grid MUST have:
+ * - Identical grid-template-columns: repeat(7, 1fr)
+ * - Identical gap: 8px (or 6px mobile, 4px extra-small)
+ * 
+ * This ensures perfect vertical alignment between:
+ * - Day labels (Sun, Mon, Tue...)
+ * - Date cells (1, 2, 3...)
+ * 
+ * DO NOT modify these values independently!
+ */

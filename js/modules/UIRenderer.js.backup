@@ -3,7 +3,6 @@
  * Handles all UI rendering and display logic
  * Phase 2A - Modular Architecture
  * FIXED: Quick-add buttons, tracking modal, monthly view
- * Phase 3: Monthly view day header alignment fix
  */
 
 import { getTodayString, getCurrentWeekDates, getDaysInMonth, getFirstDayOfMonth, getMonthName } from '../utils/dateHelpers.js';
@@ -319,7 +318,6 @@ export class UIRenderer {
     
     /**
      * Render heatmap for monthly view
-     * PHASE 3 FIX: Separated day headers from grid for perfect alignment
      */
     renderHeatmap(habit, year, month, completions) {
         const daysInMonth = getDaysInMonth(year, month);
@@ -327,18 +325,12 @@ export class UIRenderer {
         
         const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         
-        // Start heatmap container
-        let html = '<div class="heatmap-container">';
+        let html = '<div class="heatmap-container"><div class="heatmap-grid">';
         
-        // SEPARATED: Day headers in their own grid
-        html += '<div class="heatmap-day-headers">';
+        // Day labels
         dayLabels.forEach(label => {
             html += `<div class="heatmap-day-label">${label}</div>`;
         });
-        html += '</div>';
-        
-        // SEPARATED: Date cells in their own grid
-        html += '<div class="heatmap-grid">';
         
         // Empty cells for days before month starts
         for (let i = 0; i < firstDay; i++) {

@@ -9,11 +9,11 @@
     <!-- PHASE 1: Content Security Policy for security -->
     <!-- Quick Fix: Added 'unsafe-inline' to allow onclick handlers -->
     <meta http-equiv="Content-Security-Policy" 
-		  content="default-src 'self'; 
-				   script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
+          content="default-src 'self'; 
+                   script-src 'self' 'unsafe-inline'; 
                    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-                   font-src 'self' https://fonts.gstatic.com data:;
-                   img-src 'self' data: blob:;
+                   font-src 'self' https://fonts.gstatic.com;
+                   img-src 'self' data:;
                    connect-src 'self';">
     
     <title>Habit Flow - Daily Habit Tracker</title>
@@ -23,10 +23,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-	<link rel="stylesheet" href="css/phase3-ui.css">
-	<link rel="stylesheet" href="css/phase3-mobile.css">
-	<link rel="stylesheet" href="css/monthly-view-alignment-fix.css">
-	<link rel="stylesheet" href="css/habit-card-mobile.css">
+	<link rel="stylesheet" href="css/phase3-part1.css">
+	<link rel="stylesheet" href="css/phase3-part2.css">
+	<link rel="stylesheet" href="css/mobile.css"
+	<link rel="stylesheet" href="css/phase3-fixes.css">
 </head>
 <body>
     <div class="container">
