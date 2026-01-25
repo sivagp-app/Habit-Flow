@@ -2889,10 +2889,34 @@ body.adhd-mode .heatmap-day-label {
     color: rgb(203, 213, 225) !important;
 }
 
-/* Theme dropdown selected text */
-#settingsModal select,
-#settingsModal .theme-selector {
+/* Theme dropdown - theme-aware text color */
+/* Dark theme: light text */
+body.dark #settingsModal select,
+body.dark #settingsModal .theme-selector {
     color: rgb(226, 232, 240) !important;
+}
+
+/* Light themes: dark text for better readability */
+body.light-ocean #settingsModal select,
+body.light-serenity #settingsModal select,
+body.light-dawn #settingsModal select,
+body.light-harmony #settingsModal select,
+body.light-mist #settingsModal select {
+    color: #0f172a !important; /* Dark text */
+    font-weight: 600 !important; /* Bold for visibility */
+}
+
+/* Theme hint text - also theme-aware */
+body.dark #settingsModal .theme-hint {
+    color: rgb(148, 163, 184) !important;
+}
+
+body.light-ocean #settingsModal .theme-hint,
+body.light-serenity #settingsModal .theme-hint,
+body.light-dawn #settingsModal .theme-hint,
+body.light-harmony #settingsModal .theme-hint,
+body.light-mist #settingsModal .theme-hint {
+    color: #64748b !important;
 }
 
 /* Button text */
@@ -2915,38 +2939,54 @@ body.adhd-mode .heatmap-day-label {
    Therefore it ALWAYS needs DARK text
    ================================================================= */
 
-/* Export section - override ALL previous settings rules */
-#settingsModal .export-section,
-#settingsModal .export-section h3,
-#settingsModal .export-section p,
-#settingsModal .export-section span,
-#settingsModal .export-section label {
-    color: rgb(15, 23, 42) !important; /* Always dark text */
+/* Export section container - white background for both themes */
+#settingsModal .export-section {
+    background: white !important;
+    border: 1px solid rgb(226, 232, 240) !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    margin-top: 1rem !important;
+}
+
+/* Export section title - DARK TEXT (highest specificity) */
+#settingsModal .export-section h3 {
+    color: rgb(15, 23, 42) !important; /* Almost black */
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    margin: 0 0 0.5rem 0 !important;
+}
+
+/* Export section description - DARK TEXT */
+#settingsModal .export-section p {
+    color: rgb(71, 85, 105) !important; /* Dark slate */
+    font-size: 0.875rem !important;
+    margin: 0 0 1rem 0 !important;
 }
 
 /* Checkbox label text */
 #settingsModal .export-section label {
     color: rgb(71, 85, 105) !important; /* Medium gray */
+    font-size: 0.875rem !important;
+}
+
+/* All other text elements in export section */
+#settingsModal .export-section span {
+    color: rgb(71, 85, 105) !important;
 }
 
 /* Export button - keep it green with white text */
 #settingsModal .export-section button {
     color: white !important;
     background: rgb(34, 197, 94) !important; /* Green button */
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
 }
 
-/* Force all children to have dark text */
-#settingsModal .export-section * {
-    color: inherit !important;
-}
-
-/* Re-force specific elements to dark */
-#settingsModal .export-section h3 {
-    color: rgb(15, 23, 42) !important;
-}
-
-#settingsModal .export-section p {
-    color: rgb(71, 85, 105) !important;
+#settingsModal .export-section button:hover {
+    background: rgb(22, 163, 74) !important; /* Darker green on hover */
 }
 
 /* =================================================================
@@ -2991,4 +3031,29 @@ body.adhd-mode .heatmap-day-label {
  * - Section titles (h3): rgb(226, 232, 240) - Bright slate
  * - Body text (p, li): rgb(203, 213, 225) - Medium-light slate
  * - Muted text: rgb(148, 163, 184) - Dimmer slate
- */
+ *//* ===================================================================
+   EXPORT SECTION - HOVER FIX
+   Add this to the END of phase3-ui.css
+   =================================================================== */
+
+/* Override hover background for export checkboxes to keep light background */
+#settingsModal .export-section .export-checkbox:hover,
+body.dark-ocean #settingsModal .export-section .export-checkbox:hover,
+body.light-ocean #settingsModal .export-section .export-checkbox:hover,
+body.adhd-blue #settingsModal .export-section .export-checkbox:hover,
+body.adhd-green #settingsModal .export-section .export-checkbox:hover,
+body.adhd-purple #settingsModal .export-section .export-checkbox:hover,
+body.adhd-sunset #settingsModal .export-section .export-checkbox:hover {
+    background: rgba(226, 232, 240, 0.5) !important; /* Light gray hover - visible on white */
+}
+
+/* Keep text dark even on hover */
+#settingsModal .export-section .export-checkbox:hover label,
+body.dark-ocean #settingsModal .export-section .export-checkbox:hover label,
+body.light-ocean #settingsModal .export-section .export-checkbox:hover label,
+body.adhd-blue #settingsModal .export-section .export-checkbox:hover label,
+body.adhd-green #settingsModal .export-section .export-checkbox:hover label,
+body.adhd-purple #settingsModal .export-section .export-checkbox:hover label,
+body.adhd-sunset #settingsModal .export-section .export-checkbox:hover label {
+    color: #1e293b !important; /* Keep dark text on hover */
+}
